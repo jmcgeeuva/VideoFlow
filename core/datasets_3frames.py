@@ -71,6 +71,7 @@ class FlowDataset(data.Dataset):
 
         if self.oneside:
             if self.sparse:
+                print(self.flow_list[index])
                 flow1, valid1 = frame_utils.readFlowKITTI(self.flow_list[index])
                 flow2 = copy.deepcopy(flow1)
                 valid2 = copy.deepcopy(valid1) * 0
@@ -153,7 +154,7 @@ class FlyingThings3D(FlowDataset):
                 self.flow_list.append([root+flow1.strip(), root+flow2.strip()])
 
 class MpiSintel(FlowDataset):
-    def __init__(self, aug_params=None, split='training', root='datasets/Sintel', dstype='clean', reverse_rate=0.3):
+    def __init__(self, aug_params=None, split='training', root='datasets/', dstype='clean', reverse_rate=0.3, reduce_by=1):
         super(MpiSintel, self).__init__(aug_params, oneside=True, reverse_rate=reverse_rate)
 
         self.image_list = []
@@ -161,13 +162,13 @@ class MpiSintel(FlowDataset):
             images = f.readlines()
             for img1, img2, img3 in zip(images[0::3], images[1::3], images[2::3]):
                 self.image_list.append([root+img1.strip(), root+img2.strip(), root+img3.strip()])
-        
+
         self.flow_list = []
         with open("./flow_datasets/sintel_three_frames/Sintel_"+dstype+"_flo.txt") as f:
             flows = f.readlines()
             for flow in flows:
                 self.flow_list.append(root+flow.strip())
-        
+
         assert (len(self.image_list) == len(self.flow_list))
 
         self.extra_info = []
@@ -176,8 +177,15 @@ class MpiSintel(FlowDataset):
             for scene, id in zip(info[0::2], info[1::2]):
                 self.extra_info.append((scene.strip(), int(id.strip())))
 
+        random_indexes = random.sample(range(len(self.image_list)), int(len(self.image_list)/reduce_by))
+        
+        self.image_list = np.array(self.image_list)[random_indexes].tolist()
+        self.flow_list = np.array(self.flow_list)[random_indexes].tolist()
+        self.extra_info = np.array(self.extra_info)[random_indexes].tolist()
+        # import pdb; pdb.set_trace()
+
 class MpiSintel_submission(FlowDataset):
-    def __init__(self, aug_params=None, split='test', root='datasets/Sintel', dstype='clean', reverse_rate=-1):
+    def __init__(self, aug_params=None, split='test', root='datasets/', dstype='clean', reverse_rate=-1, reduce_by=1):
         super(MpiSintel_submission, self).__init__(aug_params, oneside=True, reverse_rate=-1)
         flow_root = osp.join(root, split, 'flow')
         image_root = osp.join(root, split, dstype)
@@ -198,7 +206,7 @@ class MpiSintel_submission(FlowDataset):
                 self.flow_list += sorted(glob(osp.join(flow_root, scene, '*.flo')))
 
 class HD1K(FlowDataset):
-    def __init__(self, aug_params=None, root='datasets/HD1k'):
+    def __init__(self, aug_params=None, root='datasets/', reduce_by=1):
         super(HD1K, self).__init__(aug_params, sparse=True, oneside=True)
 
         self.image_list = []
@@ -211,9 +219,15 @@ class HD1K(FlowDataset):
             flows = f.readlines()
             for flow in flows:
                 self.flow_list.append(root+flow.strip())
+        
+        random_indexes = random.sample(range(len(self.image_list)), int(len(self.image_list)/reduce_by))
+        
+        self.image_list = np.array(self.image_list)[random_indexes].tolist()
+        self.flow_list = np.array(self.flow_list)[random_indexes].tolist()
+        # import pdb; pdb.set_trace()
 
 class KITTI(FlowDataset):
-    def __init__(self, aug_params=None, split='training', root='datasets/KITTI'):
+    def __init__(self, aug_params=None, split='training', root='datasets/'):
         super(KITTI, self).__init__(aug_params, sparse=True, oneside=True)
         if split == 'testing':
             self.is_test = True
@@ -239,7 +253,6 @@ class KITTI(FlowDataset):
         
         print(self.image_list[:10])
         print(self.flow_list[:10])
-        
 
 def fetch_dataloader(args, TRAIN_DS='C+T+K+S+H'):
    
@@ -250,12 +263,12 @@ def fetch_dataloader(args, TRAIN_DS='C+T+K+S+H'):
         train_dataset = clean_dataset + final_dataset
     elif args.stage == 'sintel':
         aug_params = {'crop_size': args.image_size, 'min_scale': -0.2, 'max_scale': 0.6, 'do_flip': True}
-        things = FlyingThings3D(aug_params, dstype='frames_cleanpass')
-        sintel_clean = MpiSintel(aug_params, split='training', dstype='clean')
-        sintel_final = MpiSintel(aug_params, split='training', dstype='final')        
-        hd1k = HD1K({'crop_size': args.image_size, 'min_scale': -0.5, 'max_scale': 0.2, 'do_flip': True})
-        kitti = KITTI({'crop_size': args.image_size, 'min_scale': -0.3, 'max_scale': 0.5, 'do_flip': True})
-        train_dataset = 100*sintel_clean + 100*sintel_final + 200*kitti + 5*hd1k + things
+        # things = FlyingThings3D(aug_params, dstype='frames_cleanpass')
+        sintel_clean = MpiSintel(aug_params, split='training', dstype='clean', reduce_by=10)
+        sintel_final = MpiSintel(aug_params, split='training', dstype='final', reduce_by=10)
+        hd1k = HD1K({'crop_size': args.image_size, 'min_scale': -0.5, 'max_scale': 0.2, 'do_flip': True}, reduce_by=10)
+        # kitti = KITTI({'crop_size': args.image_size, 'min_scale': -0.3, 'max_scale': 0.5, 'do_flip': True})
+        train_dataset = 100*sintel_clean + 100*sintel_final + 5*hd1k #+ things
     elif args.stage == 'kitti':
         aug_params = {'crop_size': args.image_size, 'min_scale': -0.2, 'max_scale': 0.4, 'do_flip': False}
         train_dataset = KITTI(aug_params, split='training')
@@ -266,5 +279,5 @@ def fetch_dataloader(args, TRAIN_DS='C+T+K+S+H'):
     print('Training with %d image pairs' % len(train_dataset))
     return train_loader
 
-if __name__ == "__main__":
-    return
+# if __name__ == "__main__":
+#     return

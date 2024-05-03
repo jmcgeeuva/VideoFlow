@@ -283,7 +283,7 @@ def count_parameters(model):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    #parser.add_argument('--model', help="restore checkpoint")
+    parser.add_argument('--model', help="restore checkpoint")
     parser.add_argument('--dataset', help="dataset for evaluation")
     parser.add_argument('--small', action='store_true', help='use small model')
     parser.add_argument('--mixed_precision', action='store_true', help='use mixed precision')
@@ -294,8 +294,8 @@ if __name__ == '__main__':
 
     model = torch.nn.DataParallel(build_network(cfg))
     
-    if cfg.model is not None:
-        model.load_state_dict(torch.load(cfg.model))
+    if args.model is not None:
+        model.load_state_dict(torch.load(args.model))
     else:
         print("[Not loading pretrained checkpoint]")
 

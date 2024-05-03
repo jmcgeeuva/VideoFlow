@@ -15,7 +15,7 @@ _CN.critical_params = []
 
 _CN.network = 'MOFNetStack'
 
-_CN.restore_ckpt = "PATH_TO_FINAL/final"
+_CN.restore_ckpt = None
 
 _CN.mixed_precision = True
 _CN.input_frames = 5

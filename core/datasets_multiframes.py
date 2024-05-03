@@ -269,7 +269,7 @@ class ThingsTEST(FlowDatasetTest):
 
 
 class MpiSintel_submission(FlowDatasetTest):
-    def __init__(self, return_gt=False, root='datasets/Sintel', dstype='clean', input_frames=6):
+    def __init__(self, return_gt=False, root='datasets/', dstype='clean', input_frames=6):
         super(MpiSintel_submission, self).__init__(return_gt=return_gt, input_frames=input_frames)
 
         split = "test"
@@ -297,7 +297,7 @@ class MpiSintel_submission(FlowDatasetTest):
 
 
 class MpiSintel_submission_stride1(FlowDatasetTest):
-    def __init__(self, return_gt=False, root='datasets/Sintel', dstype='clean', input_frames=6):
+    def __init__(self, return_gt=False, root='datasets/', dstype='clean', input_frames=6):
         super(MpiSintel_submission_stride1, self).__init__(return_gt=return_gt, input_frames=input_frames)
 
         split = "test"

@@ -5,7 +5,7 @@ _CN.name = ''
 _CN.suffix =''
 _CN.gamma = 0.85
 _CN.max_flow = 400
-_CN.batch_size = 8
+_CN.batch_size = 2
 _CN.sum_freq = 100
 _CN.val_freq = 100000000
 _CN.image_size = [432, 960]
@@ -17,7 +17,7 @@ _CN.network = 'BOFNet'
 _CN.mixed_precision = False
 _CN.filter_epe = False
 
-_CN.restore_ckpt = "PATH_TO_FINAL/final"
+_CN.restore_ckpt = None
 
 _CN.BOFNet = CN()
 _CN.BOFNet.pretrain = True
@@ -38,7 +38,7 @@ _CN.trainer.optimizer = 'adamw'
 _CN.trainer.canonical_lr = 12.5e-5
 _CN.trainer.adamw_decay = 1e-4
 _CN.trainer.clip = 1.0
-_CN.trainer.num_steps = 120000
+_CN.trainer.num_steps = 2500
 _CN.trainer.epsilon = 1e-8
 _CN.trainer.anneal_strategy = 'linear'
 def get_cfg():

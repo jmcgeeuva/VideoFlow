@@ -100,10 +100,18 @@ if __name__ == '__main__':
     cfg.update(vars(args))
 
     model = torch.nn.DataParallel(build_network(cfg))
-    model.load_state_dict(torch.load(cfg.model))
+    checkpoint = torch.load(cfg.model)
+
+    model.load_state_dict(checkpoint)
 
     model.cuda()
     model.eval()
+
+    # model = torch.nn.DataParallel(build_network(cfg))
+    # model.load_state_dict(torch.load(cfg.model))
+
+    # model.cuda()
+    # model.eval()
 
     print(cfg.model)
     print("Parameter Count: %d" % count_parameters(model))

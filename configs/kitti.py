@@ -17,7 +17,7 @@ _CN.network = 'BOFNet'
 _CN.mixed_precision = False
 _CN.filter_epe = False
 
-_CN.restore_ckpt = "PATH-TO-FINAL"
+_CN.restore_ckpt = None
 
 _CN.BOFNet = CN()
 _CN.BOFNet.pretrain = True

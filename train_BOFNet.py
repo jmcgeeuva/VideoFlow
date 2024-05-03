@@ -23,6 +23,7 @@ from core.optimizer import fetch_optimizer
 from core.utils.misc import process_cfg
 from loguru import logger as loguru_logger
 from core.utils.logger import Logger
+# from loss import *
 
 from core.Networks import build_network
 
@@ -111,10 +112,13 @@ def train(cfg):
             if total_steps > cfg.trainer.num_steps:
                 should_keep_training = False
                 break
+            else:
+                print(f'Total Steps: {total_steps}')
 
     logger.close()
     PATH = cfg.log_dir + '/final'
     torch.save(model.state_dict(), PATH)
+    print(f'Saved to: python -u evaluate_BOFNet.py --dataset=sintel --model \'{PATH}\'')
 
     return PATH
 

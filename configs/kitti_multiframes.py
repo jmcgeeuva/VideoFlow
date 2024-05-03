@@ -15,7 +15,7 @@ _CN.critical_params = []
 
 _CN.network = 'MOFNetStack'
 
-_CN.restore_ckpt = "PATH-TO-FINAL/final"
+_CN.restore_ckpt = "./logs/BOF-sintel2/final"
 
 _CN.mixed_precision = False
 _CN.input_frames = 5
